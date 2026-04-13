@@ -4,29 +4,31 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 23 * * *'
-
+    #在这里设置运行时间，如果不知道怎么配置可以问AI
+    #实际运行时间会比设置时间延迟一小时以内，取决于当时github资源占用情况。
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.4.0
+      - name: 'Set up Python'
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: 3.7
 
-      - name: Install requirements
+      - name: 'Install requirements'
         run: |
           pip install --upgrade pip
           pip install -r ./requirements.txt
 
-      - name: Setup Chrome & chromedriver
-        uses: browser-actions/setup-chrome@v1
-      - name: Install chromedriver
-        run: sudo apt-get install -y chromium-chromedriver
+      - name: Prepare chromedriver
+        uses: nanasess/setup-chromedriver@v2
 
-      - name: Working
+      - name: 'Working'
         run: |
           python ./jlc.py ${{ secrets.JLC_USERNAME }} ${{ secrets.JLC_PASSWORD }}
